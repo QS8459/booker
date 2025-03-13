@@ -27,7 +27,7 @@ stadium: APIRouter = APIRouter(prefix="/stadium", tags=['Staduim'])
 async def stadium_home(
         service: StadiumService = Depends(get_stadium_service)
 ):
-    return "Hello From the staduim"
+    return "Hello From the stadium"
 
 
 @stadium.post(

@@ -14,6 +14,7 @@ from src.core.schema.event import (
 )
 from src.core.schema.response import ResponseBaseSchema
 from src.core.service.auth import get_user
+from src.conf.log import logger
 from datetime import datetime, timedelta
 from uuid import UUID
 
@@ -21,6 +22,33 @@ event: APIRouter = APIRouter(
     prefix='/event',
     tags=["Event"]
 )
+
+
+@event.get(
+    '/range/',
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseBaseSchema
+)
+async def list_range(
+    start_date: datetime = Query(default=datetime.utcnow() - timedelta(days=1)),
+    end_date: datetime = Query(default=datetime.utcnow() + timedelta(days=1)),
+    page: int = Query(default=1),
+    page_size: int = Query(default=10),
+    service: EventService = Depends(get_event_service),
+    # token=Depends(get_user)
+):
+    logger.info('Hello from range endpoint')
+    count = await service.get_count()
+    data_list = await service.filterer(
+        offset=page - 1,
+        limit=page_size,
+        start_datetime=start_date,
+        end_datetime=end_date
+    )
+    return ResponseBaseSchema[EventResponseSchema](
+        count=count[0],
+        result=data_list
+    )
 
 
 @event.post(
@@ -36,7 +64,7 @@ async def add_event(
     return await service.add(account_id=token.id, **data.dict())
 
 
-@event.post(
+@event.get(
     '/list/',
     status_code=status.HTTP_200_OK,
     response_model=ResponseBaseSchema
@@ -52,7 +80,7 @@ async def get_events(
         offset=page-1,
         limit=page_size
     )
-    return ResponseBaseSchema(
+    return ResponseBaseSchema[EventResponseSchema](
         count=count[0],
         result=data_list
     )
@@ -66,7 +94,7 @@ async def get_events(
 async def get_event(
         _id: UUID,
         service: EventService = Depends(get_event_service),
-        token = Depends(get_user)
+        token=Depends(get_user)
 ):
     return await service.get_by_id(id=_id)
 
@@ -83,29 +111,3 @@ async def update_event(
 ):
     return await service.update(**data.dict())
 
-
-@event.get(
-    '/list_range/',
-    status_code=status.HTTP_200_OK,
-    response_model=ResponseBaseSchema
-)
-async def list_range(
-    start_date: datetime = Query(default=datetime.utcnow() - timedelta(days=1)),
-    end_date: datetime = Query(default= datetime.utcnow() + timedelta(days=1)),
-    page: int = Query(default=1),
-    page_size: int = Query(default=10),
-    service: EventService = Depends(get_event_service)
-):
-    count = await service.get_count()
-    fields = ['title', 'start_datetime', 'end_datetime']
-    data_list = await service.filter(
-        fields=fields,
-        offset=page - 1,
-        limit=page_size,
-        start_datetime=start_date,
-        end_datetime=end_date
-    )
-    return ResponseBaseSchema[EventResponseSchema](
-        count=count[0],
-        result=data_list
-    )

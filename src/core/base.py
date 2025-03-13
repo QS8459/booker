@@ -36,7 +36,6 @@ class BaseService(ABC, Generic[T]):
         result = await self.__handle_in_session(call_next, *args, **kwargs)
         if fetch_one:
             return result.scalars().first()
-
         return result.scalars().all()
 
     @abstractmethod
@@ -99,15 +98,15 @@ class BaseService(ABC, Generic[T]):
 
         return await self._exec(_h_delete, in_id=id, update=True)
 
-    async def filter(
+    async def filterer(
             self,
             fields: list = None,
             offset: int = 0,
             limit: int = 10,
             **kwargs
     ):
-        async def _filter(query):
-            return await self.session.execute(query)
+        async def _filter(in_query):
+            return await self.session.execute(in_query)
         # query = select(self.model)
         selected_fields: list = []
         filter_conditions: list = []
@@ -122,10 +121,10 @@ class BaseService(ABC, Generic[T]):
             if value is not None:
                 filter_conditions.append(getattr(self.model, key) == value)
 
-        query = (
-            select(*selected_fields)
-            .filter(*filter_conditions)
-            .offset(offset)
+        query = select(self.model)\
+            .filter(*filter_conditions)\
+            .offset(offset)\
             .limit(limit)
-        )
-        return await self._exec(_filter, query=query, fetch_one=False)
+
+        result = await self._exec(_filter, in_query=query, fetch_one=False)
+        return result

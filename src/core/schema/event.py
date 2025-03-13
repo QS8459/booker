@@ -1,12 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 from uuid import UUID
+from typing import Optional
 
 
 class EventBaseSchema(BaseModel):
     title: str
-    start_datetime: datetime
-    end_datetime: datetime
+    start_datetime: Optional[datetime] = Field(default=None)
+    end_datetime: Optional[datetime] = Field(default=None)
     stadium_id: UUID
 
     class Config:

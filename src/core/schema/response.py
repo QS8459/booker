@@ -12,4 +12,4 @@ T = TypeVar("T")
 class ResponseBaseSchema(BaseModel, Generic[T]):
     count: Optional[int] = 0
     next: Optional[str] = None
-    result: List[T]
+    result: Optional[List[T]] = []

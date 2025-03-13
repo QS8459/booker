@@ -5,8 +5,8 @@ from uuid import UUID
 
 class StadiumBaseSchema(BaseModel):
     name: str
-    lat: Optional[str] = None
-    lon: Optional[str] = None
+    lat: Optional[float] = 0.0
+    lon: Optional[float] = 0.0
     address: Optional[str] = None
     city: Optional[str] = None
     country: Optional[str] = None

@@ -2,6 +2,7 @@ from fastapi import (
     APIRouter,
     Depends,
     Form,
+    Query,
     status
 )
 from src.core.service.account import (
@@ -17,6 +18,7 @@ from src.core.service.auth import (
     generate_token, get_user,
     get_admin
 )
+from src.core.schema.response import ResponseBaseSchema
 from src.conf.log import logger
 
 account: APIRouter = APIRouter(prefix="/account", tags=['Account'])
@@ -64,6 +66,25 @@ async def login(
             token_type='bearer'
         )
     return None
+
+
+@account.get(
+    '/list/',
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseBaseSchema
+)
+async def user_list(
+        page: int = Query(default=1),
+        page_size: int = Query(default=10),
+        service: AccountService = Depends(get_account_service),
+        token=Depends(get_admin)
+):
+    count = await service.get_count()
+    data_list = await service.get_all(offset=page-1, limit=page_size)
+    return ResponseBaseSchema[AccountResponseSchema](
+        count=count[0],
+        result=data_list
+    )
 
 
 @account.get(

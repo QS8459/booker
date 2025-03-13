@@ -62,7 +62,7 @@ async def get_admin(
 
 
 async def get_vendor(
-        current_user=Depends(oauth2_scheme)
+        current_user=Depends(get_user)
 ):
     if current_user.role != "VENDOR" and current_user.role != "ADMIN":
         raise HTTPException(

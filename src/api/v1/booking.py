@@ -17,7 +17,7 @@ from src.core.service.auth import get_user
 
 booking: APIRouter = APIRouter(
     prefix='/booking',
-    tags=["Event"]
+    tags=["Booking"]
 )
 
 

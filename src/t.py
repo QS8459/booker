@@ -1,4 +1,16 @@
-from src.core.utils.distance import calculate_distance
+from src.db.models.account import Account
+from sqlalchemy import select, and_
+
 
 if __name__ == "__main__":
-    print(calculate_distance(11.11111, 22.22222, 33.33333, 44.444444))
+    filters = {
+        'email': 'string',
+        'password': 'string'
+    }
+    a = Account
+    filter_conditions = []
+
+    for field, value in filters.items():
+        if value is not None:
+            filter_conditions.append(getattr(a, field) == value)
+    print(select(a).filter(*filter_conditions))

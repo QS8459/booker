@@ -98,3 +98,34 @@ class BaseService(ABC, Generic[T]):
             return await self.session.delete(instance)
 
         return await self._exec(_h_delete, in_id=id, update=True)
+
+    async def filter(
+            self,
+            fields: list = None,
+            offset: int = 0,
+            limit: int = 10,
+            **kwargs
+    ):
+        async def _filter(query):
+            return await self.session.execute(query)
+        # query = select(self.model)
+        selected_fields: list = []
+        filter_conditions: list = []
+        if fields:
+            selected_fields = [getattr(self.model, field) for field in fields if hasattr(self.model, field)]
+            if not selected_fields:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="No valid fields specified for selection."
+                )
+        for key, value in kwargs.items():
+            if value is not None:
+                filter_conditions.append(getattr(self.model, key) == value)
+
+        query = (
+            select(*selected_fields)
+            .filter(*filter_conditions)
+            .offset(offset)
+            .limit(limit)
+        )
+        return await self._exec(_filter, query=query, fetch_one=False)

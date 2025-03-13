@@ -6,7 +6,7 @@ from src.db.models.account import Roles
 
 class AccountBaseSchema(BaseModel):
     email: str
-    role: Optional[Roles] = None
+    role: Optional[str] = Roles.USER.value
 
     class Config:
         from_attributes = True

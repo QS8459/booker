@@ -10,10 +10,14 @@ from src.core.service.account import (
 )
 from src.core.schema.token import TokenResponseSchema
 from src.core.schema.account import (
-    AccountCreateSchema,
+    AccountAddSchema,
     AccountResponseSchema
 )
-from src.core.service.auth import generate_token, get_user
+from src.core.service.auth import (
+    generate_token, get_user,
+    get_admin
+)
+from src.conf.log import logger
 
 account: APIRouter = APIRouter(prefix="/account", tags=['Account'])
 
@@ -31,7 +35,7 @@ async def account_home(
     response_model=AccountResponseSchema
 )
 async def add_account(
-        data: AccountCreateSchema,
+        data: AccountAddSchema,
         service: AccountService = Depends(get_account_service)
 ):
     return await service.add(**data.dict())
@@ -51,7 +55,8 @@ async def login(
     if user:
         token = generate_token({
             'username': user.get('email'),
-            'id': f'{user.get("id")}'
+            'id': f'{user.get("id")}',
+            'role': user.get('role')
         }
         )
         return TokenResponseSchema(
@@ -72,3 +77,30 @@ async def me(
 ):
     user = await service.get_by_email(token)
     return user
+
+
+@account.post(
+    '/add_vendor/',
+    status_code=status.HTTP_201_CREATED,
+    response_model=AccountResponseSchema
+)
+async def add_vendor(
+        data: AccountAddSchema,
+        service: AccountService = Depends(get_account_service),
+        admin=Depends(get_admin)
+):
+    data.role="VENDOR"
+    return await service.add(**data.dict())
+
+
+@account.post(
+    '/new_admin/',
+    status_code=status.HTTP_201_CREATED,
+    response_model=AccountResponseSchema
+)
+async def add_vendor(
+        data: AccountAddSchema,
+        service: AccountService = Depends(get_account_service),
+):
+    data.role="ADMIN"
+    return await service.add(**data.dict())

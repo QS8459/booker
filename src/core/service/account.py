@@ -34,7 +34,8 @@ class AccountService(BaseService):
         if user.ver_pwd(password):
             return {
                 "email": user.email,
-                'id': user.id
+                'id': user.id,
+                'role': user.role.value
             }
         else:
             raise HTTPException(

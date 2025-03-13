@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     db_url: str
 
     class Config:
-        env_file = None
+        env_file = ".env"
         env_file_encoding = "utf-8"
         env_prefix = 'BK_'
         extra = Extra.allow

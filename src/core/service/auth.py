@@ -40,13 +40,36 @@ async def get_user(
             )
         return AccountResponseSchema(
             id=payload.get('id'),
-            email=username
+            email=username,
+            role=payload.get('role')
         )
     except (InvalidTokenError, InvalidSignatureError) as e:
         logger.error(e)
 
         raise credentials_exception
 
+
+async def get_admin(
+    current_user=Depends(get_user)
+):
+    logger.info(current_user)
+    if current_user.role == "ADMIN":
+        return current_user
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Permission Denied",
+    )
+
+
+async def get_vendor(
+        current_user=Depends(oauth2_scheme)
+):
+    if current_user.role != "VENDOR" and current_user.role != "ADMIN":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Permission Denied"
+        )
+    return current_user
 
 def generate_token(data: dict = None):
     to_encode = data.copy()

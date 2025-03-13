@@ -8,13 +8,17 @@ from src.core.service.stadium import (
     StadiumService,
     get_stadium_service
 )
-from src.core.service.auth import get_user
+from src.core.service.auth import (
+    get_user,
+    get_vendor,
+    get_admin
+)
 from src.core.schema.stadium import (
     StadiumAddSchema,
     StadiumResponseSchema
 )
 from src.core.schema.response import ResponseBaseSchema
-from src.conf.log import logger
+from uuid import UUID
 
 stadium: APIRouter = APIRouter(prefix="/stadium", tags=['Staduim'])
 
@@ -34,7 +38,7 @@ async def stadium_home(
 async def add_stadium(
         data: StadiumAddSchema,
         service: StadiumService = Depends(get_stadium_service),
-        token=Depends(get_user)
+        token=Depends(get_vendor)
 ):
     return await service.add(owner_id=token.id, **data.dict())
 
@@ -64,6 +68,19 @@ async def stadiums(
         result=data_list
     )
 
+
+@stadium.put(
+    '/{id}/',
+    status_code=status.HTTP_200_OK,
+    response_model=StadiumResponseSchema
+)
+async def edit_stadium(
+        _id: UUID,
+        data: StadiumAddSchema,
+        service: StadiumService = Depends(get_stadium_service),
+        token=Depends(get_vendor)
+):
+    return await service.update(id=_id, **data.dict())
 # @stadium.put(
 #     '/book/',
 #     status_code=status.HTTP_200_OK,

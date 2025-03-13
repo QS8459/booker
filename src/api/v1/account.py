@@ -92,15 +92,15 @@ async def add_vendor(
     data.role="VENDOR"
     return await service.add(**data.dict())
 
-
-@account.post(
-    '/new_admin/',
-    status_code=status.HTTP_201_CREATED,
-    response_model=AccountResponseSchema
-)
-async def add_vendor(
-        data: AccountAddSchema,
-        service: AccountService = Depends(get_account_service),
-):
-    data.role="ADMIN"
-    return await service.add(**data.dict())
+#
+# @account.post(
+#     '/new_admin/',
+#     status_code=status.HTTP_201_CREATED,
+#     response_model=AccountResponseSchema
+# )
+# async def add_vendor(
+#         data: AccountAddSchema,
+#         service: AccountService = Depends(get_account_service),
+# ):
+#     data.role="ADMIN"
+#     return await service.add(**data.dict())

@@ -1,11 +1,12 @@
 from pydantic import BaseModel
 from uuid import UUID
 from typing import Optional
+from src.db.models.account import Roles
 
 
 class AccountBaseSchema(BaseModel):
     email: str
-    role: Optional[str | None] = None
+    role: Optional[Roles] = None
 
     class Config:
         from_attributes = True

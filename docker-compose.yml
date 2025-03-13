@@ -1,0 +1,14 @@
+services:
+  booker:
+    container_name: 'booker'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: ["/bin/sh", "-c", "source /app/script.sh"]
+    ports:
+      - "8300:8000"
+    restart: always
+    volumes:
+      - ./src:/app/src
+      - ./alembic/env.py:/app/alembic/env.py
+      - ./script.sh:/app/script.sh

@@ -1,0 +1,8 @@
+bind = ["0.0.0.0:8000"]  # Bind to all interfaces on port 7000
+workers = 4
+worker_class = "asyncio"
+keep_alive_timeout = 10
+graceful_timeout = 30
+#log_level = "-"
+accesslog = "-"
+errorlog = "-"
